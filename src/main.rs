@@ -42,9 +42,6 @@ impl TypedValueParser for DeviceTypeValueParser {
     }
 }
 
-#[cfg(feature = "mcp")]
-mod mcp;
-
 /// Control your USB-connected Logitech Litra lights from the command line
 #[cfg(feature = "cli")]
 #[derive(Debug, Parser)]
@@ -504,9 +501,6 @@ enum Commands {
         #[clap(long, short, action, help = "Return the results in JSON format")]
         json: bool,
     },
-    /// Start a MCP (Model Context Protocol) server for controlling Litra devices
-    #[cfg(feature = "mcp")]
-    Mcp,
 }
 
 fn percentage_within_range(percentage: u32, start_range: u32, end_range: u32) -> u32 {
@@ -579,7 +573,6 @@ enum CliError {
     DeviceError(DeviceError),
     SerializationFailed(serde_json::Error),
     DeviceNotFound,
-    MCPError(String),
 }
 
 impl fmt::Display for CliError {
@@ -588,7 +581,6 @@ impl fmt::Display for CliError {
             CliError::DeviceError(error) => error.fmt(f),
             CliError::SerializationFailed(error) => error.fmt(f),
             CliError::DeviceNotFound => write!(f, "Device not found."),
-            CliError::MCPError(message) => write!(f, "MCP server error: {}", message),
         }
     }
 }
@@ -683,7 +675,6 @@ fn is_user_input_error(error: &DeviceError) -> bool {
 }
 
 #[cfg_attr(feature = "cli", derive(Tabled))]
-#[cfg_attr(feature = "mcp", derive(schemars::JsonSchema))]
 #[derive(Serialize, Debug)]
 pub struct DeviceInfo {
     #[cfg_attr(feature = "cli", tabled(skip))]
@@ -1241,11 +1232,6 @@ fn handle_back_brightness_down_command(
     Ok(())
 }
 
-#[cfg(feature = "mcp")]
-fn handle_mcp_command() -> CliResult {
-    mcp::handle_mcp_command()
-}
-
 /// The current version of the CLI, extracted from Cargo.toml
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -1650,8 +1636,6 @@ fn main() -> ExitCode {
             device_path.as_deref(),
             *percentage,
         ),
-        #[cfg(feature = "mcp")]
-        Commands::Mcp => handle_mcp_command(),
     };
 
     if let Err(error) = result {

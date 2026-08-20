@@ -81,7 +81,6 @@ impl Litra {
 
 /// The model of the device.
 #[derive(Debug, Clone, Copy, PartialEq, serde::Deserialize, serde::Serialize)]
-#[cfg_attr(feature = "mcp", derive(schemars::JsonSchema))]
 pub enum DeviceType {
     /// Logitech [Litra Glow][glow] streaming light with TrueSoft.
     ///
@@ -504,6 +503,7 @@ fn device_type_from_product_id(product_id: u16) -> Option<DeviceType> {
         0xc901 => DeviceType::LitraBeam.into(),
         0xb901 => DeviceType::LitraBeam.into(),
         0xc903 => DeviceType::LitraBeamLX.into(),
+        0xb903 => DeviceType::LitraBeamLX.into(), // Bluetooth LE variant (USB is 0xc903)
         _ => None,
     }
 }
