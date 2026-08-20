@@ -1,0 +1,10 @@
+# Clippy configuration — tunes *configurable* lints only.
+# Lint enable/deny lives in `src/lib.rs` crate attributes, not here.
+
+# Minimum supported Rust version. Matches the channel pinned in
+# rust-toolchain.toml, so msrv-aware lints won't suggest newer-than-1.95 APIs.
+msrv = "1.95.0"
+
+# This crate is a published library (litra v3.3.0). Keep clippy from proposing
+# changes that would break the public API.
+avoid-breaking-exported-api = true
